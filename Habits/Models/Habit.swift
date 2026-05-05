@@ -10,9 +10,11 @@ import SwiftData
 
 @Model
 final class Habit {
+    var name: String
     var timestamp: Date
     
-    init(timestamp: Date) {
+    init(name: String, timestamp: Date) {
+        self.name = name
         self.timestamp = timestamp
     }
 }
