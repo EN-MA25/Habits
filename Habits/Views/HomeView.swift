@@ -22,7 +22,9 @@ struct HomeView: View {
                     NavigationLink {
                         HabitDetailView(habit: habit)
                     } label: {
-                        HabitListItemView(habit: habit)
+                        HabitListItemView(habit: habit) {
+                            toggleDoneToday(for: habit)
+                        }
                     }
                 }
                 .onDelete(perform: deleteItems)
@@ -48,6 +50,12 @@ struct HomeView: View {
         .environment(viewModel)
     }
 
+    private func toggleDoneToday(for habit: Habit) {
+        withAnimation {
+            viewModel.toggleCompletion(for: habit)
+        }
+    }
+    
     private func addItem() {
         withAnimation {
             viewModel.addHabit(name: "Test", context: modelContext)

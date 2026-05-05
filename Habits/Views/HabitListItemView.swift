@@ -10,9 +10,15 @@ import SwiftUI
 struct HabitListItemView: View {
     
     var habit: Habit
-    
+    var action: () -> Void
+
     var body: some View {
         HStack {
+            Button(action: action) {
+                Image(systemName: habit.isCompletedToday() ? "checkmark.square.fill" : "square")
+                    .font(.title2)
+            }
+            .buttonStyle(.plain)
             VStack(alignment: .leading) {
                 Text(habit.name)
                 Text(
@@ -23,10 +29,11 @@ struct HabitListItemView: View {
                     )
                 )
             }
+            
         }
     }
 }
 
 #Preview {
-    HabitListItemView(habit: Habit(name: "Test", timestamp: Date()))
+    HabitListItemView(habit: Habit(name: "Test", timestamp: Date()), action: {})
 }
