@@ -25,7 +25,7 @@ struct HabitsApp: App {
 
     var body: some Scene {
         WindowGroup {
-            HabitsView()
+            HomeView()
         }
         .modelContainer(sharedModelContainer)
     }

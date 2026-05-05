@@ -1,5 +1,5 @@
 //
-//  HabitsView.swift
+//  HomeView.swift
 //  Habits
 //
 //  Created by Erik on 2026-05-04.
@@ -8,48 +8,44 @@
 import SwiftData
 import SwiftUI
 
-struct HabitsView: View {
+struct HomeView: View {
     @Environment(\.modelContext) private var modelContext
     @Query private var habits: [Habit]
 
     @State private var viewModel = HabitViewModel()
+    @State private var isShowingAddHabit = false
 
     var body: some View {
         NavigationSplitView {
             List {
                 ForEach(habits) { habit in
                     NavigationLink {
-                        Text(
-                            "Habit at \(habit.timestamp, format: Date.FormatStyle(date: .numeric, time: .standard))"
-                        )
+                        HabitDetailView(habit: habit)
                     } label: {
-                        VStack(alignment: .leading) {
-                            Text(habit.name)
-                            Text(
-                                habit.timestamp,
-                                format: Date.FormatStyle(
-                                    date: .numeric,
-                                    time: .standard
-                                )
-                            )
-                        }
+                        HabitListItemView(habit: habit)
                     }
                 }
                 .onDelete(perform: deleteItems)
             }
+            .sheet(isPresented: $isShowingAddHabit) {
+                AddHabitView()
+            }
+            .navigationTitle("Habits")
+            .navigationBarTitleDisplayMode(.large)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     EditButton()
                 }
                 ToolbarItem {
-                    Button(action: addItem) {
-                        Label("Add Item", systemImage: "plus")
+                    Button("Add Item", systemImage: "plus") {
+                        isShowingAddHabit = true
                     }
                 }
             }
         } detail: {
             Text("Select an item")
         }
+        .environment(viewModel)
     }
 
     private func addItem() {
@@ -68,6 +64,6 @@ struct HabitsView: View {
 }
 
 #Preview {
-    HabitsView()
+    HomeView()
         .modelContainer(for: Habit.self, inMemory: true)
 }
