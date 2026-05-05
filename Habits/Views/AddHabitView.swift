@@ -16,11 +16,14 @@ struct AddHabitView: View {
 
     @State private var name: String = ""
 
+    @FocusState private var showKeyboard: Bool
+    
     var body: some View {
         NavigationStack {
             Form {
                 Section(header: Text("New habit")) {
                     TextField("Name", text: $name)
+                        .focused($showKeyboard)
                 }
             }
             .navigationTitle("New habit")
@@ -33,6 +36,11 @@ struct AddHabitView: View {
                     dismiss()
                 }
             )
+        }
+        .onAppear {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                showKeyboard = true
+            }
         }
     }
 }
