@@ -16,6 +16,8 @@ struct AddHabitView: View {
 
     @State private var name: String = ""
 
+    let existingHabits: [Habit]
+
     @FocusState private var showKeyboard: Bool
 
     var body: some View {
@@ -34,12 +36,20 @@ struct AddHabitView: View {
                     viewModel.addHabit(name: name, context: context)
                     dismiss()
                 }
+                .disabled(name.isEmpty || isDuplicate)
             )
         }
         .onAppear {
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
                 showKeyboard = true
             }
+        }
+    }
+
+    var isDuplicate: Bool {
+        existingHabits.contains {
+            $0.name.lowercased().trimmingCharacters(in: .whitespaces)
+                == name.lowercased().trimmingCharacters(in: .whitespaces)
         }
     }
 }

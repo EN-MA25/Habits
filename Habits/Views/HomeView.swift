@@ -30,7 +30,7 @@ struct HomeView: View {
                 .onDelete(perform: deleteItems)
             }
             .sheet(isPresented: $isShowingAddHabit) {
-                AddHabitView()
+                AddHabitView(existingHabits: habits)
             }
             .navigationTitle("Habits")
             .navigationBarTitleDisplayMode(.large)

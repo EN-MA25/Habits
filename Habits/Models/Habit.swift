@@ -10,10 +10,11 @@ import SwiftData
 
 @Model
 final class Habit {
-    var name: String
+    @Attribute(.unique) var name: String
+    
     var createdAt: Date
     var completions: [Completion] = []
-    
+
     init(name: String) {
         self.name = name
         self.createdAt = Date()
@@ -26,30 +27,37 @@ extension Habit {
             Calendar.current.isDateInToday($0.date)
         }
     }
-    
+
     var currentStreak: Int {
         let calendar = Calendar.current
         let today = calendar.startOfDay(for: Date())
 
-        let days = Set(completions.map {
-            calendar.startOfDay(for: $0.date)
-        })
+        let days = Set(
+            completions.map {
+                calendar.startOfDay(for: $0.date)
+            }
+        )
 
         var streak = 0
         var currentDate = today
 
         while days.contains(currentDate) {
             streak += 1
-            currentDate = calendar.date(byAdding: .day, value: -1, to: currentDate)!
+            currentDate = calendar.date(
+                byAdding: .day,
+                value: -1,
+                to: currentDate
+            )!
         }
 
         return streak
     }
-    
+
     var maxStreak: Int {
         let calendar = Calendar.current
 
-        let sortedDays = completions
+        let sortedDays =
+            completions
             .map { calendar.startOfDay(for: $0.date) }
             .sorted()
 
@@ -59,7 +67,8 @@ extension Habit {
 
         for date in sortedDays {
             if let prev = previousDate,
-               calendar.date(byAdding: .day, value: 1, to: prev) == date {
+                calendar.date(byAdding: .day, value: 1, to: prev) == date
+            {
                 currentStreak += 1
             } else {
                 currentStreak = 1
@@ -71,5 +80,5 @@ extension Habit {
 
         return maxStreak
     }
-    
+
 }
