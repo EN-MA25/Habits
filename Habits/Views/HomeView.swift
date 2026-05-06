@@ -15,10 +15,30 @@ struct HomeView: View {
     @State private var viewModel = HabitViewModel()
     @State private var isShowingAddHabit = false
 
+    @State private var filter: HabitFilter = .all
+
+    var filteredHabits: [Habit] {
+        switch filter {
+        case .all:
+            return habits
+        case .completedToday:
+            return habits.filter { $0.isCompletedToday }
+        case .notCompletedToday:
+            return habits.filter { !$0.isCompletedToday }
+        }
+    }
+    
+    
     var body: some View {
         NavigationSplitView {
+            Picker("Filter", selection: $filter) {
+                Text("All").tag(HabitFilter.all)
+                Text("Done").tag(HabitFilter.completedToday)
+                Text("Not Done").tag(HabitFilter.notCompletedToday)
+            }
+            .pickerStyle(.segmented)
             List {
-                ForEach(habits) { habit in
+                ForEach(filteredHabits) { habit in
                     NavigationLink {
                         HabitDetailView(habit: habit)
                     } label: {
@@ -56,11 +76,11 @@ struct HomeView: View {
         }
     }
     
-    private func addItem() {
-        withAnimation {
-            viewModel.addHabit(name: "Test", context: modelContext)
-        }
-    }
+//    private func addItem() {
+//        withAnimation {
+//            viewModel.addHabit(name: "Test", context: modelContext)
+//        }
+//    }
 
     private func deleteItems(offsets: IndexSet) {
         withAnimation {

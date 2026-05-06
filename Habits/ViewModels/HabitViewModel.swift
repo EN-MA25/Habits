@@ -12,8 +12,15 @@ import SwiftData
 @Observable
 class HabitViewModel {
 
-    func addHabit(name: String, context: ModelContext) {
-        let habit = Habit(name: name)
+    func addHabit(name: String, note: String, context: ModelContext) {
+        
+        let cleanedName = name.trimmingCharacters(in: .whitespacesAndNewlines)
+        let cleanedNote = note.trimmingCharacters(in: .whitespacesAndNewlines)
+        
+        let habit = Habit(
+            name: cleanedName,
+            note: cleanedNote.isEmpty ? nil : cleanedNote)
+        
         context.insert(habit)
     }
 

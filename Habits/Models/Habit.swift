@@ -12,12 +12,15 @@ import SwiftData
 final class Habit {
     @Attribute(.unique) var name: String
     
+    var note: String?
     var createdAt: Date
-    var completions: [Completion] = []
-
-    init(name: String) {
+    var completions: [Completion]
+    
+    init(name: String, note: String? = nil) {
         self.name = name
+        self.note = note
         self.createdAt = Date()
+        self.completions = []
     }
 }
 

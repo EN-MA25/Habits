@@ -21,7 +21,16 @@ struct HabitListItemView: View {
             .buttonStyle(.plain)
             VStack(alignment: .leading) {
                 Text(habit.name)
+                
+                if let note = habit.note, !note.isEmpty {
+                    Text(note)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+                
                 Text("Streak: \(habit.currentStreak), Max Streak: \(habit.maxStreak)")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
             }
         }
     }

@@ -15,6 +15,8 @@ struct AddHabitView: View {
     @Environment(\.dismiss) private var dismiss
 
     @State private var name: String = ""
+    @State private var note: String = ""
+
 
     let existingHabits: [Habit]
 
@@ -25,6 +27,7 @@ struct AddHabitView: View {
             Form {
                 TextField("Name", text: $name)
                     .focused($showKeyboard)
+                TextField("Note (Optional)", text: $note)
 
             }
             .navigationTitle("New habit")
@@ -33,7 +36,7 @@ struct AddHabitView: View {
                 leading: Button("Cancel") { dismiss() },
                 trailing: Button("Add") {
 
-                    viewModel.addHabit(name: name, context: context)
+                    viewModel.addHabit(name: name, note: note, context: context)
                     dismiss()
                 }
                 .disabled(name.isEmpty || isDuplicate)
