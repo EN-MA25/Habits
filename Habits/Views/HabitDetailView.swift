@@ -13,11 +13,11 @@ struct HabitDetailView: View {
     
     var body: some View {
         Text(
-            "\(habit.name) \(habit.timestamp, format: Date.FormatStyle(date: .numeric, time: .standard))"
+            "\(habit.name) \(habit.createdAt, format: Date.FormatStyle(date: .numeric, time: .standard))"
         )
     }
 }
 
 #Preview {
-    HabitDetailView(habit: Habit(name: "Kaffe", timestamp: Date()))
+    HabitDetailView(habit: Habit(name: "Kaffe"))
 }

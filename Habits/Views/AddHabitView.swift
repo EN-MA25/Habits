@@ -17,14 +17,13 @@ struct AddHabitView: View {
     @State private var name: String = ""
 
     @FocusState private var showKeyboard: Bool
-    
+
     var body: some View {
         NavigationStack {
             Form {
-                Section(header: Text("New habit")) {
-                    TextField("Name", text: $name)
-                        .focused($showKeyboard)
-                }
+                TextField("Name", text: $name)
+                    .focused($showKeyboard)
+
             }
             .navigationTitle("New habit")
             .navigationBarTitleDisplayMode(.large)

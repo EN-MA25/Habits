@@ -13,7 +13,7 @@ import SwiftData
 class HabitViewModel {
 
     func addHabit(name: String, context: ModelContext) {
-        let habit = Habit(name: name, timestamp: Date())
+        let habit = Habit(name: name)
         context.insert(habit)
     }
 

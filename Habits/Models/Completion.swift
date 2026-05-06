@@ -9,9 +9,8 @@ import Foundation
 import SwiftData
 
 @Model
-class Completion {
+final class Completion {
     var date: Date
-//    var mood: String = ""
 
     init(date: Date) {
         self.date = date

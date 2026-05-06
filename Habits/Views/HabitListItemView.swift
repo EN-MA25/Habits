@@ -15,25 +15,18 @@ struct HabitListItemView: View {
     var body: some View {
         HStack {
             Button(action: action) {
-                Image(systemName: habit.isCompletedToday() ? "checkmark.square.fill" : "square")
+                Image(systemName: habit.isCompletedToday ? "checkmark.square.fill" : "square")
                     .font(.title2)
             }
             .buttonStyle(.plain)
             VStack(alignment: .leading) {
                 Text(habit.name)
-                Text(
-                    habit.timestamp,
-                    format: Date.FormatStyle(
-                        date: .numeric,
-                        time: .standard
-                    )
-                )
+                Text("Streak: \(habit.currentStreak), Max Streak: \(habit.maxStreak)")
             }
-            
         }
     }
 }
 
 #Preview {
-    HabitListItemView(habit: Habit(name: "Test", timestamp: Date()), action: {})
+    HabitListItemView(habit: Habit(name: "Test"), action: {})
 }
