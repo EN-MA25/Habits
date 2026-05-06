@@ -14,40 +14,65 @@ struct HomeView: View {
 
     @State private var viewModel = HabitViewModel()
     @State private var isShowingAddHabit = false
-
     @State private var filter: HabitFilter = .all
+    @State private var searchText: String = ""
 
     var filteredHabits: [Habit] {
-        switch filter {
-        case .all:
-            return habits
-        case .completedToday:
-            return habits.filter { $0.isCompletedToday }
-        case .notCompletedToday:
-            return habits.filter { !$0.isCompletedToday }
-        }
+        habits
+            .filter { habit in
+                switch filter {
+                case .all:
+                    return true
+                case .completedToday:
+                    return habit.isCompletedToday
+                case .notCompletedToday:
+                    return !habit.isCompletedToday
+                }
+            }
+            .filter { habit in
+                guard !searchText.isEmpty else { return true }
+
+                let search = searchText
+                    .trimmingCharacters(in: .whitespacesAndNewlines)
+                    .lowercased()
+                
+                let nameMatch = habit.name.lowercased().contains(search)
+                
+                let noteMatch =
+                    habit.note?
+                    .lowercased()
+                    .contains(search) ?? false
+
+                return nameMatch || noteMatch
+            }
+
     }
-    
-    
+
     var body: some View {
         NavigationSplitView {
-            Picker("Filter", selection: $filter) {
-                Text("All").tag(HabitFilter.all)
-                Text("Done").tag(HabitFilter.completedToday)
-                Text("Not Done").tag(HabitFilter.notCompletedToday)
-            }
-            .pickerStyle(.segmented)
+            
             List {
-                ForEach(filteredHabits) { habit in
-                    NavigationLink {
-                        HabitDetailView(habit: habit)
-                    } label: {
-                        HabitListItemView(habit: habit) {
-                            toggleDoneToday(for: habit)
+                Picker("Filter", selection: $filter) {
+                    Text("All").tag(HabitFilter.all)
+                    Text("Done").tag(HabitFilter.completedToday)
+                    Text("Not Done").tag(HabitFilter.notCompletedToday)
+                }
+                .pickerStyle(.segmented)
+                if filteredHabits.isEmpty {
+                    Text("No habits found")
+                        .foregroundStyle(.secondary)
+                } else {
+                    ForEach(filteredHabits) { habit in
+                        NavigationLink {
+                            HabitDetailView(habit: habit)
+                        } label: {
+                            HabitListItemView(habit: habit) {
+                                toggleDoneToday(for: habit)
+                            }
                         }
                     }
+                    .onDelete(perform: deleteItems)
                 }
-                .onDelete(perform: deleteItems)
             }
             .sheet(isPresented: $isShowingAddHabit) {
                 AddHabitView(existingHabits: habits)
@@ -67,6 +92,7 @@ struct HomeView: View {
         } detail: {
             Text("Select an item")
         }
+        .searchable(text: $searchText, prompt: "Search")
         .environment(viewModel)
     }
 
@@ -75,12 +101,12 @@ struct HomeView: View {
             viewModel.toggleCompletion(for: habit)
         }
     }
-    
-//    private func addItem() {
-//        withAnimation {
-//            viewModel.addHabit(name: "Test", context: modelContext)
-//        }
-//    }
+
+    //    private func addItem() {
+    //        withAnimation {
+    //            viewModel.addHabit(name: "Test", context: modelContext)
+    //        }
+    //    }
 
     private func deleteItems(offsets: IndexSet) {
         withAnimation {
