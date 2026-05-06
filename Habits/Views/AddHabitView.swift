@@ -8,6 +8,11 @@
 import SwiftData
 import SwiftUI
 
+enum Field {
+    case name
+    case note
+}
+
 struct AddHabitView: View {
 
     @Environment(\.modelContext) var context
@@ -17,17 +22,32 @@ struct AddHabitView: View {
     @State private var name: String = ""
     @State private var note: String = ""
 
+    @FocusState private var focusedField: Field?
 
     let existingHabits: [Habit]
 
-    @FocusState private var showKeyboard: Bool
+    @State private var showConfirmation = false
 
     var body: some View {
         NavigationStack {
             Form {
                 TextField("Name", text: $name)
-                    .focused($showKeyboard)
+                    .focused($focusedField, equals: .name)
+                    .submitLabel(.next)
+                    .onSubmit {
+                        focusedField = .note
+                    }
+                
                 TextField("Note (Optional)", text: $note)
+                    .focused($focusedField, equals: .note)
+                    .submitLabel(name.isEmpty || isDuplicate ? .next : .done)
+                    .onSubmit {
+                        if name.isEmpty || isDuplicate {
+                            focusedField = .name
+                        } else {
+                            showConfirmation = true
+                        }
+                    }
 
             }
             .navigationTitle("New habit")
@@ -35,18 +55,29 @@ struct AddHabitView: View {
             .navigationBarItems(
                 leading: Button("Cancel") { dismiss() },
                 trailing: Button("Add") {
-
-                    viewModel.addHabit(name: name, note: note, context: context)
-                    dismiss()
+                    addHabit()
                 }
                 .disabled(name.isEmpty || isDuplicate)
             )
         }
         .onAppear {
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                showKeyboard = true
+                focusedField = .name
             }
         }
+        .alert("Add Habit", isPresented: $showConfirmation) {
+            Button("Yes") {
+                addHabit()
+            }
+            Button("No", role: .cancel) { focusedField = .name}
+        } message: {
+            Text("Would you like to add \(name) as a new note")
+        }
+    }
+    
+    func addHabit() {
+        viewModel.addHabit(name: name, note: note, context: context)
+        dismiss()
     }
 
     var isDuplicate: Bool {
