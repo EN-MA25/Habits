@@ -13,14 +13,15 @@ import SwiftData
 class HabitViewModel {
 
     func addHabit(name: String, note: String, context: ModelContext) {
-        
+
         let cleanedName = name.trimmingCharacters(in: .whitespacesAndNewlines)
         let cleanedNote = note.trimmingCharacters(in: .whitespacesAndNewlines)
-        
+
         let habit = Habit(
             name: cleanedName,
-            note: cleanedNote.isEmpty ? nil : cleanedNote)
-        
+            note: cleanedNote.isEmpty ? nil : cleanedNote
+        )
+
         context.insert(habit)
     }
 
@@ -37,6 +38,20 @@ class HabitViewModel {
             habit.completions.remove(at: index)
         } else {
             habit.completions.append(Completion(date: today))
+        }
+    }
+
+    //TODO: - Test method. In production it should not be used
+    func toggleCompletion(for habit: Habit, atDate date: Date) {
+        let calendar = Calendar.current
+        let normalizedDate = calendar.startOfDay(for: date)
+
+        if let index = habit.completions.firstIndex(where: {
+            calendar.isDate($0.date, inSameDayAs: normalizedDate)
+        }) {
+            habit.completions.remove(at: index)
+        } else {
+            habit.completions.append(Completion(date: normalizedDate))
         }
     }
 
