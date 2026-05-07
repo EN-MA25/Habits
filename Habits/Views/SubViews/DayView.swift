@@ -16,8 +16,8 @@ struct DayView: View {
 
     var body: some View {
         ZStack {
+            CircleDiagramView(progress: progress)
             Circle()
-                .fill(isCompleted ? Color.green : Color.green.opacity(progress))
                 .stroke(isCompleted ? Color.primary : Color.clear, lineWidth: 1)
             Text(dayNumber)
                 .font(.subheadline)
@@ -43,5 +43,5 @@ struct DayView: View {
 }
 
 #Preview {
-    DayView(date: Date(), progress: 0.5, isCompleted: true, isCurrentMonth: false, isToday: true)
+    DayView(date: Date(), progress: 0.25, isCompleted: false, isCurrentMonth: false, isToday: true)
 }
