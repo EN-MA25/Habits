@@ -111,7 +111,7 @@ struct HabitDetailView: View {
                         withAnimation {
                             habit.notificationsEnabled = newValue
                             if newValue {
-                                NotificationManager.shared.scheduleDailyReminder(
+                                NotificationManager.shared.scheduleNextReminder(
                                     for: habit
                                 )
                             } else {
@@ -139,7 +139,7 @@ struct HabitDetailView: View {
                                 .minute,
                                 from: newDate
                             )
-                            NotificationManager.shared.scheduleDailyReminder(
+                            NotificationManager.shared.scheduleNextReminder(
                                 for: habit
                             )
                         }

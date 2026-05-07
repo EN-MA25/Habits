@@ -17,23 +17,42 @@ final class NotificationManager {
         try await UNUserNotificationCenter.current()
             .requestAuthorization(options: [.alert, .badge, .sound])
     }
-
-    func scheduleDailyReminder(for habit: Habit) {
+    
+    func scheduleNextReminder(for habit: Habit) {
         cancelReminder(for: habit)
+
         guard habit.notificationsEnabled else { return }
-        
+
+        let calendar = Calendar.current
+        let now = Date()
+
+        var components = DateComponents()
+        components.hour = habit.notificationHour
+        components.minute = habit.notificationMinute
+
+        var nextDate = calendar.nextDate(
+            after: now,
+            matching: components,
+            matchingPolicy: .nextTime
+        ) ?? now
+
+        if habit.isCompleted(on: nextDate) {
+            nextDate = calendar.date(byAdding: .day, value: 1, to: nextDate) ?? nextDate
+        }
+
+        let finalComponents = calendar.dateComponents(
+            [.year, .month, .day, .hour, .minute],
+            from: nextDate
+        )
+
         let content = UNMutableNotificationContent()
         content.title = "Habit reminder"
         content.body = "Time to complete: \(habit.name)"
         content.sound = .default
-        
-        var dateComponents = DateComponents()
-        dateComponents.hour = habit.notificationHour
-        dateComponents.minute = habit.notificationMinute
 
         let trigger = UNCalendarNotificationTrigger(
-            dateMatching: dateComponents,
-            repeats: true
+            dateMatching: finalComponents,
+            repeats: false
         )
 
         let request = UNNotificationRequest(

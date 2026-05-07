@@ -40,7 +40,7 @@ class HabitViewModel {
         context.insert(habit)
 
         if enabled {
-            NotificationManager.shared.scheduleDailyReminder(for: habit)
+            NotificationManager.shared.scheduleNextReminder(for: habit)
         }
     }
 
@@ -65,6 +65,9 @@ class HabitViewModel {
             }
         } else {
             habit.completions.append(Completion(date: day))
+        }
+        if habit.isCompletedToday, habit.notificationsEnabled {
+            NotificationManager.shared.scheduleNextReminder(for: habit)
         }
     }
 
