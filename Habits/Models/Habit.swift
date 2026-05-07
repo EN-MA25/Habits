@@ -28,12 +28,6 @@ final class Habit {
 
 extension Habit {
 
-    func hasCompletion(on date: Date) -> Bool {
-        completions.contains {
-            Calendar.current.isDate($0.date, inSameDayAs: date)
-        }
-    }
-
     var isCompletedToday: Bool {
         isCompleted(on: Date())
     }
@@ -42,20 +36,15 @@ extension Habit {
         let calendar = Calendar.current
         let today = calendar.startOfDay(for: Date())
 
-        let days = Set(
-            completions.map {
-                calendar.startOfDay(for: $0.date)
-            }
-        )
-
         let startDate: Date
-        if days.contains(today) {
+        
+        if isCompleted(on: today) {
             startDate = today
         } else if let yesterday = calendar.date(
             byAdding: .day,
             value: -1,
             to: today
-        ), days.contains(yesterday) {
+        ), isCompleted(on: yesterday) {
             startDate = yesterday
         } else {
             return 0

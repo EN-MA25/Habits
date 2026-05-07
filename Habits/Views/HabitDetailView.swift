@@ -90,13 +90,14 @@ struct HabitDetailView: View {
             ForEach(daysInMonth(for: currentMonth), id: \.self) { date in
                 DayView(
                     date: date,
-                    isCompleted: habit.hasCompletion(on: date),
+                    progress: habit.percentedCompleted(on: date),
+                    isCompleted: habit.isCompleted(on: date),
                     isCurrentMonth: isCurrentMonth(date: date),
                     isToday: calendar.isDateInToday(date)
                 )
                 .onTapGesture {
                     //MARK: - Test. In production it should not be used.
-                    viewModel.toggleCompletion(for: habit, atDate: date)
+                    viewModel.incrementCompletion(for: habit, on: date)
                 }
             }
         }

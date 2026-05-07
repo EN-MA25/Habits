@@ -9,6 +9,7 @@ import SwiftUI
 
 struct DayView: View {
     let date: Date
+    let progress: Double
     let isCompleted: Bool
     let isCurrentMonth: Bool
     let isToday: Bool
@@ -16,7 +17,8 @@ struct DayView: View {
     var body: some View {
         ZStack {
             Circle()
-                .fill(isCompleted ? Color.green.opacity(0.3) : Color.clear)
+                .fill(isCompleted ? Color.green : Color.green.opacity(progress))
+                .stroke(isCompleted ? Color.primary : Color.clear, lineWidth: 1)
             Text(dayNumber)
                 .font(.subheadline)
                 .foregroundStyle(isCurrentMonth ? .primary : .secondary)
@@ -41,5 +43,5 @@ struct DayView: View {
 }
 
 #Preview {
-    DayView(date: Date(), isCompleted: true, isCurrentMonth: false, isToday: true)
+    DayView(date: Date(), progress: 0.5, isCompleted: true, isCurrentMonth: false, isToday: true)
 }
