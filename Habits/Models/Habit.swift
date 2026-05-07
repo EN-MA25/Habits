@@ -11,11 +11,11 @@ import SwiftData
 @Model
 final class Habit {
     @Attribute(.unique) var name: String
-    
+
     var note: String?
     var createdAt: Date
     var completions: [Completion]
-    
+
     init(name: String, note: String? = nil) {
         self.name = name
         self.note = note
@@ -25,13 +25,13 @@ final class Habit {
 }
 
 extension Habit {
-    
+
     func hasCompletion(on date: Date) -> Bool {
         completions.contains {
             Calendar.current.isDate($0.date, inSameDayAs: date)
         }
     }
-    
+
     var isCompletedToday: Bool {
         completions.contains {
             Calendar.current.isDateInToday($0.date)
@@ -48,16 +48,37 @@ extension Habit {
             }
         )
 
+        let startDate: Date
+        if days.contains(today) {
+            startDate = today
+        } else if let yesterday = calendar.date(
+            byAdding: .day,
+            value: -1,
+            to: today
+        ),
+            days.contains(yesterday)
+        {
+            startDate = yesterday
+        } else {
+            return 0
+        }
+
         var streak = 0
-        var currentDate = today
+        var currentDate = startDate
 
         while days.contains(currentDate) {
             streak += 1
-            currentDate = calendar.date(
-                byAdding: .day,
-                value: -1,
-                to: currentDate
-            )!
+            guard
+                let previousDay = calendar.date(
+                    byAdding: .day,
+                    value: -1,
+                    to: currentDate
+                )
+            else {
+                break
+            }
+
+            currentDate = previousDay
         }
 
         return streak
