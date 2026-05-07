@@ -15,12 +15,14 @@ final class Habit {
     var note: String?
     var createdAt: Date
     var completions: [Completion]
+    var targetPerDay: Int
 
-    init(name: String, note: String? = nil) {
+    init(name: String, note: String? = nil, targetPerDay: Int = 1) {
         self.name = name
         self.note = note
         self.createdAt = Date()
         self.completions = []
+        self.targetPerDay = targetPerDay
     }
 }
 
@@ -33,9 +35,7 @@ extension Habit {
     }
 
     var isCompletedToday: Bool {
-        completions.contains {
-            Calendar.current.isDateInToday($0.date)
-        }
+        isCompleted(on: Date())
     }
 
     var currentStreak: Int {
@@ -111,5 +111,27 @@ extension Habit {
 
         return maxStreak
     }
+    
+    func count(on date: Date) -> Int {
+        let calendar = Calendar.current
+        return completions.filter {
+            calendar.isDate($0.date, inSameDayAs: date)
+        }.count
+    }
+    
+    func isCompleted(on date: Date) -> Bool {
+        count(on: date) >= targetPerDay
+    }
+    
+    func percentedCompleted(on date: Date) -> Double {
+        Double(count(on: date)) / Double(targetPerDay)
+    }
+    
+    var percentedCompletedToday: Double {
+        percentedCompleted(on: Date())
+    }
+    
+    
+    
 
 }

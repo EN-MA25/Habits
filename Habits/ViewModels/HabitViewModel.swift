@@ -28,6 +28,51 @@ class HabitViewModel {
     func deleteHabit(_ habit: Habit, context: ModelContext) {
         context.delete(habit)
     }
+    
+    func incrementCompletion(for habit: Habit, on date: Date) {
+        let calendar = Calendar.current
+        let day = calendar.startOfDay(for: date)
+        
+        if let completion = habit.completions.first(where: {
+            calendar.isDate($0.date, inSameDayAs: day)
+        }) {
+            if completion.count < habit.targetPerDay {
+                completion.count += 1
+            } else {
+                completion.count = 0
+                habit.completions.removeAll {
+                    calendar.isDate($0.date, inSameDayAs: day)
+                }
+            }
+        } else {
+            habit.completions.append(Completion(date: day))
+        }
+    }
+    
+    func incrementCompletionToday(for habit: Habit) {
+        incrementCompletion(for: habit, on: Date())
+    }
+    
+    func decrementCompletion(for habit: Habit, on date: Date) {
+        let calendar = Calendar.current
+        let day = calendar.startOfDay(for: date)
+
+        guard let completion = habit.completions.first(where: {
+            calendar.isDate($0.date, inSameDayAs: day)
+        }) else { return }
+
+        completion.count -= 1
+
+        if completion.count <= 0 {
+            habit.completions.removeAll {
+                calendar.isDate($0.date, inSameDayAs: day)
+            }
+        }
+    }
+    
+    func decrementCompletionToday(for habit: Habit) {
+        decrementCompletion(for: habit, on: Date())
+    }
 
     func toggleCompletion(for habit: Habit) {
         let today = Calendar.current.startOfDay(for: Date())

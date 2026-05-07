@@ -67,7 +67,7 @@ struct HomeView: View {
                             HabitDetailView(habit: habit)
                         } label: {
                             HabitListItemView(habit: habit) {
-                                toggleDoneToday(for: habit)
+                                execute(habit: habit)
                             }
                         }
                     }
@@ -96,6 +96,12 @@ struct HomeView: View {
         .environment(viewModel)
     }
 
+    private func execute(habit: Habit) {
+        withAnimation {
+            viewModel.incrementCompletionToday(for: habit)
+        }
+    }
+    
     private func toggleDoneToday(for habit: Habit) {
         withAnimation {
             viewModel.toggleCompletion(for: habit)

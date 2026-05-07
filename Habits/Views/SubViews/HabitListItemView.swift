@@ -15,8 +15,10 @@ struct HabitListItemView: View {
     var body: some View {
         HStack {
             Button(action: action) {
-                Image(systemName: habit.isCompletedToday ? "checkmark.square.fill" : "square")
-                    .font(.title2)
+//                Image(systemName: habit.isCompletedToday ? "checkmark.square.fill" : "square")
+//                    .font(.title2)
+                Image(systemName: "plus.circle.fill")
+            
             }
             .buttonStyle(.plain)
             VStack(alignment: .leading) {
