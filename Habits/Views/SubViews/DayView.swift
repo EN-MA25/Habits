@@ -17,8 +17,6 @@ struct DayView: View {
     var body: some View {
         ZStack {
             CircleDiagramView(progress: progress)
-            Circle()
-                .stroke(isCompleted ? Color.primary : Color.clear, lineWidth: 1)
             Text(dayNumber)
                 .font(.subheadline)
                 .foregroundStyle(isCurrentMonth ? .primary : .secondary)
@@ -36,8 +34,7 @@ struct DayView: View {
     }
 
     private var dayNumber: String {
-        var calendar = Calendar.current
-        calendar.firstWeekday = Locale.current.calendar.firstWeekday
+        let calendar = Calendar.current
         return String(calendar.component(.day, from: date))
     }
 }

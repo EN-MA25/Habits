@@ -19,6 +19,7 @@ struct CircleDiagramView: View {
         ZStack {
             Circle()
                 .fill(Color.gray.opacity(0.2))
+                .stroke(clampedProgress == 1 ? Color.primary : Color.clear, lineWidth: 1)
             PieSlice(progress: clampedProgress)
                 .fill(clampedProgress == 1 ? Color.green : Color.blue.opacity(0.5))
                 .animation(.easeInOut, value: clampedProgress)

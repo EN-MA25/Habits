@@ -14,13 +14,10 @@ struct HabitListItemView: View {
 
     var body: some View {
         HStack {
-            Button(action: action) {
-//                Image(systemName: habit.isCompletedToday ? "checkmark.square.fill" : "square")
-//                    .font(.title2)
-                Image(systemName: "plus.circle.fill")
-            
-            }
-            .buttonStyle(.plain)
+            CircleDiagramView(progress: habit.percentedCompletedToday)
+                .frame(width: 40, height: 40)
+                .onTapGesture(perform: action)
+
             VStack(alignment: .leading) {
                 Text(habit.name)
                 
@@ -29,11 +26,12 @@ struct HabitListItemView: View {
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
-                Text("\(habit.numberOfTimesDoneToday()) / \(habit.targetPerDay) Streak: \(habit.currentStreak), Max Streak: \(habit.maxStreak)")
+                Text("\(habit.numberOfTimesDoneToday())/\(habit.targetPerDay) Streak: \(habit.currentStreak), Max Streak: \(habit.maxStreak)")
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
         }
+        
     }
 }
 
