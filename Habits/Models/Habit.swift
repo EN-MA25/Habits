@@ -55,9 +55,7 @@ extension Habit {
             byAdding: .day,
             value: -1,
             to: today
-        ),
-            days.contains(yesterday)
-        {
+        ), days.contains(yesterday) {
             startDate = yesterday
         } else {
             return 0
@@ -66,7 +64,7 @@ extension Habit {
         var streak = 0
         var currentDate = startDate
 
-        while days.contains(currentDate) {
+        while isCompleted(on: currentDate) {
             streak += 1
             guard
                 let previousDay = calendar.date(
@@ -89,6 +87,7 @@ extension Habit {
 
         let sortedDays =
             completions
+            .filter { $0.numberOfTimesDone >= targetPerDay }
             .map { calendar.startOfDay(for: $0.date) }
             .sorted()
 
@@ -111,31 +110,28 @@ extension Habit {
 
         return maxStreak
     }
-    
+
     func numberOfTimesDone(on date: Date) -> Int {
         let calendar = Calendar.current
         return completions.first {
             calendar.isDate($0.date, inSameDayAs: date)
         }?.numberOfTimesDone ?? 0
     }
-    
+
     func numberOfTimesDoneToday() -> Int {
         numberOfTimesDone(on: Date())
     }
-    
+
     func isCompleted(on date: Date) -> Bool {
         numberOfTimesDone(on: date) >= targetPerDay
     }
-    
+
     func percentedCompleted(on date: Date) -> Double {
         Double(numberOfTimesDone(on: date)) / Double(targetPerDay)
     }
-    
+
     var percentedCompletedToday: Double {
         percentedCompleted(on: Date())
     }
-    
-    
-    
 
 }
