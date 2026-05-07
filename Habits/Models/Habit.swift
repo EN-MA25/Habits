@@ -112,19 +112,23 @@ extension Habit {
         return maxStreak
     }
     
-    func count(on date: Date) -> Int {
+    func numberOfTimesDone(on date: Date) -> Int {
         let calendar = Calendar.current
-        return completions.filter {
+        return completions.first {
             calendar.isDate($0.date, inSameDayAs: date)
-        }.count
+        }?.numberOfTimesDone ?? 0
+    }
+    
+    func numberOfTimesDoneToday() -> Int {
+        numberOfTimesDone(on: Date())
     }
     
     func isCompleted(on date: Date) -> Bool {
-        count(on: date) >= targetPerDay
+        numberOfTimesDone(on: date) >= targetPerDay
     }
     
     func percentedCompleted(on date: Date) -> Double {
-        Double(count(on: date)) / Double(targetPerDay)
+        Double(numberOfTimesDone(on: date)) / Double(targetPerDay)
     }
     
     var percentedCompletedToday: Double {

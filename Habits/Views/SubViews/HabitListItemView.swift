@@ -29,8 +29,7 @@ struct HabitListItemView: View {
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
-                
-                Text("Streak: \(habit.currentStreak), Max Streak: \(habit.maxStreak)")
+                Text("\(habit.numberOfTimesDoneToday()) / \(habit.targetPerDay) Streak: \(habit.currentStreak), Max Streak: \(habit.maxStreak)")
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
@@ -39,5 +38,5 @@ struct HabitListItemView: View {
 }
 
 #Preview {
-    HabitListItemView(habit: Habit(name: "Test"), action: {})
+    HabitListItemView(habit: Habit(name: "Test", targetPerDay: 3), action: {})
 }

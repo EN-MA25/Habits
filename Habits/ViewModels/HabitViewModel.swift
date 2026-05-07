@@ -12,14 +12,15 @@ import SwiftData
 @Observable
 class HabitViewModel {
 
-    func addHabit(name: String, note: String, context: ModelContext) {
+    func addHabit(name: String, targetPerDay: Int = 1, note: String, context: ModelContext) {
 
         let cleanedName = name.trimmingCharacters(in: .whitespacesAndNewlines)
         let cleanedNote = note.trimmingCharacters(in: .whitespacesAndNewlines)
 
         let habit = Habit(
             name: cleanedName,
-            note: cleanedNote.isEmpty ? nil : cleanedNote
+            note: cleanedNote.isEmpty ? nil : cleanedNote,
+            targetPerDay: targetPerDay
         )
 
         context.insert(habit)
@@ -36,10 +37,10 @@ class HabitViewModel {
         if let completion = habit.completions.first(where: {
             calendar.isDate($0.date, inSameDayAs: day)
         }) {
-            if completion.count < habit.targetPerDay {
-                completion.count += 1
+            if completion.numberOfTimesDone < habit.targetPerDay {
+                completion.numberOfTimesDone += 1
             } else {
-                completion.count = 0
+                completion.numberOfTimesDone = 0
                 habit.completions.removeAll {
                     calendar.isDate($0.date, inSameDayAs: day)
                 }
@@ -61,9 +62,9 @@ class HabitViewModel {
             calendar.isDate($0.date, inSameDayAs: day)
         }) else { return }
 
-        completion.count -= 1
+        completion.numberOfTimesDone -= 1
 
-        if completion.count <= 0 {
+        if completion.numberOfTimesDone <= 0 {
             habit.completions.removeAll {
                 calendar.isDate($0.date, inSameDayAs: day)
             }

@@ -11,10 +11,10 @@ import SwiftData
 @Model
 final class Completion {
     var date: Date
-    var count: Int
+    var numberOfTimesDone: Int
 
     init(date: Date, count: Int = 1) {
         self.date = date
-        self.count = count
+        self.numberOfTimesDone = count
     }
 }
