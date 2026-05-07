@@ -23,30 +23,28 @@ struct HabitDetailView: View {
             }
             .padding()
         }
+        .navigationTitle(habit.name)
+
     }
-    
+
     // MARK: - Views
-    
+
     private func headerView() -> some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text(habit.name)
-                .font(.title)
-                .fontWeight(.bold)
-            
+            Text(
+                "\(habit.totalNumberOfCompletedTasks) habits has been done since \(dateMonthYearFormat(date: habit.createdAt))"
+            )
+            Text(
+                "Current Streak: \(habit.currentStreak), Max Streak: \(habit.maxStreak)"
+            )
             if let note = habit.note, !note.isEmpty {
                 Text(note)
-                    .foregroundStyle(.secondary)
             }
-            
-            HStack {
-                Text("Current streak: \(habit.currentStreak)")
-                Spacer()
-                Text("Max streak: \(habit.maxStreak)")
-            }
-            .font(.subheadline)
+
         }
+        .foregroundStyle(.secondary)
     }
-    
+
     private func monthView() -> some View {
         HStack {
             Button {
@@ -54,14 +52,14 @@ struct HabitDetailView: View {
             } label: {
                 Image(systemName: "chevron.left")
             }
-            
+
             Spacer()
-            
+
             Text(monthTitle)
                 .font(.headline)
-            
+
             Spacer()
-            
+
             Button {
                 changeMonth(by: 1)
             } label: {
@@ -71,7 +69,7 @@ struct HabitDetailView: View {
         }
         .padding()
     }
-    
+
     private func weekView() -> some View {
         HStack {
             ForEach(weekdaySymbols, id: \.self) { day in
@@ -81,7 +79,7 @@ struct HabitDetailView: View {
             }
         }
     }
-    
+
     private func calendarView() -> some View {
         LazyVGrid(
             columns: Array(repeating: GridItem(.flexible()), count: 7),
@@ -102,7 +100,7 @@ struct HabitDetailView: View {
             }
         }
     }
-    
+
     //MARK: -
     //MARK: Calculeted Properties
     private var calendar: Calendar {
@@ -110,19 +108,25 @@ struct HabitDetailView: View {
         cal.firstWeekday = Locale.current.calendar.firstWeekday
         return cal
     }
-    
+
     private var weekdaySymbols: [String] {
         let symbols = calendar.shortWeekdaySymbols
         let firstDayIndex = calendar.firstWeekday - 1
         return Array(symbols[firstDayIndex...] + symbols[..<firstDayIndex])
     }
-    
+
     private var monthTitle: String {
         let formatter = DateFormatter()
         formatter.dateFormat = "MMMM yyyy"
         return formatter.string(from: currentMonth)
     }
-    
+
+    private func dateMonthYearFormat(date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "d MMMM yyyy"
+        return formatter.string(from: date)
+    }
+
     //MARK: Functions
     private func isCurrentMonth(date: Date) -> Bool {
         calendar.isDate(

@@ -31,7 +31,11 @@ extension Habit {
     var isCompletedToday: Bool {
         isCompleted(on: Date())
     }
-
+    
+    var totalNumberOfCompletedTasks: Int {
+        completions.filter { $0.numberOfTimesDone >= targetPerDay }.count
+    }
+    
     var currentStreak: Int {
         let calendar = Calendar.current
         let today = calendar.startOfDay(for: Date())
