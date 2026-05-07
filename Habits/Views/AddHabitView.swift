@@ -29,6 +29,9 @@ struct AddHabitView: View {
     let existingHabits: [Habit]
 
     @State private var showConfirmation = false
+    
+    @State private var reminderTime = Date()
+    @State private var notificationsEnabled = false
 
     var body: some View {
         NavigationStack {
@@ -43,18 +46,27 @@ struct AddHabitView: View {
                     .focused($focusedField, equals: .note)
                     .submitLabel(.next)
                     .onSubmit {
-//                        if name.isEmpty || isDuplicate {
-//                            focusedField = .name
-//                        } else {
-//                            showConfirmation = true
-//                        }
                         focusedField = .count
                     }
                 TextField("Habits per day (1 is default)", text: $habitsPerDayString)
                     .focused($focusedField, equals: .count)
                     .keyboardType(.numberPad)
                 
-                
+                Section("Reminder") {
+
+                    Toggle("Daily reminder", isOn: $notificationsEnabled)
+
+                    if notificationsEnabled {
+
+                        DatePicker(
+                            "Time",
+                            selection: $reminderTime,
+                            displayedComponents: .hourAndMinute
+                        )
+
+                    }
+
+                }
                 
 
             }
@@ -85,11 +97,9 @@ struct AddHabitView: View {
     }
     
     func addHabit() {
-        if let targetPerDay = Int(habitsPerDayString) {
-            viewModel.addHabit(name: name, targetPerDay: targetPerDay, note: note, context: context)
-        } else {
-            viewModel.addHabit(name: name, note: note, context: context)
-        }
+        
+        viewModel.addHabit(name: name, targetPerDay: Int(habitsPerDayString) ?? 1, note: note, context: context, enabled: notificationsEnabled, reminderTime: reminderTime)
+        
         dismiss()
     }
 
