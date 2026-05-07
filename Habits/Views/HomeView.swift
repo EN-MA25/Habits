@@ -115,12 +115,6 @@ struct HomeView: View {
         }
     }
 
-    //    private func addItem() {
-    //        withAnimation {
-    //            viewModel.addHabit(name: "Test", context: modelContext)
-    //        }
-    //    }
-
     private func deleteItems(offsets: IndexSet) {
         withAnimation {
             for index in offsets {

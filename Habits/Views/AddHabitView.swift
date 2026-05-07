@@ -52,7 +52,7 @@ struct AddHabitView: View {
                     .focused($focusedField, equals: .count)
                     .keyboardType(.numberPad)
                 
-                Section("Reminder") {
+                Section {
 
                     Toggle("Daily reminder", isOn: $notificationsEnabled)
 
@@ -75,7 +75,6 @@ struct AddHabitView: View {
             .navigationBarItems(
                 leading: Button("Cancel") { dismiss() },
                 trailing: Button("Add") {
-//                    addHabit()
                     showConfirmation = true
                 }
                 .disabled(name.isEmpty || isDuplicate)

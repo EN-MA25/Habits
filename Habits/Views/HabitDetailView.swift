@@ -17,6 +17,7 @@ struct HabitDetailView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
                 headerView()
+                notificationView()
                 monthView()
                 weekView()
                 calendarView()
@@ -67,7 +68,6 @@ struct HabitDetailView: View {
             }
             .disabled(isCurrentMonth(date: Date()))
         }
-        .padding()
     }
 
     private func weekView() -> some View {
@@ -101,6 +101,58 @@ struct HabitDetailView: View {
         }
     }
 
+    private func notificationView() -> some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Toggle(
+                "Daily reminder",
+                isOn: Binding(
+                    get: { habit.notificationsEnabled },
+                    set: { newValue in
+                        withAnimation {
+                            habit.notificationsEnabled = newValue
+                            if newValue {
+                                NotificationManager.shared.scheduleDailyReminder(
+                                    for: habit
+                                )
+                            } else {
+                                NotificationManager.shared.cancelReminder(
+                                    for: habit
+                                )
+                            }
+                        }
+                    }
+                )
+            )
+
+            if habit.notificationsEnabled {
+                DatePicker(
+                    "Time",
+                    selection: Binding(
+                        get: { reminderDate },
+                        set: { newDate in
+                            let calendar = Calendar.current
+                            habit.notificationHour = calendar.component(
+                                .hour,
+                                from: newDate
+                            )
+                            habit.notificationMinute = calendar.component(
+                                .minute,
+                                from: newDate
+                            )
+                            NotificationManager.shared.scheduleDailyReminder(
+                                for: habit
+                            )
+                        }
+                    ),
+                    displayedComponents: .hourAndMinute
+                )
+            }
+            
+        }
+        .foregroundStyle(.secondary)
+
+    }
+
     //MARK: -
     //MARK: Calculeted Properties
     private var calendar: Calendar {
@@ -125,6 +177,13 @@ struct HabitDetailView: View {
         let formatter = DateFormatter()
         formatter.dateFormat = "d MMMM yyyy"
         return formatter.string(from: date)
+    }
+
+    private var reminderDate: Date {
+        var components = DateComponents()
+        components.hour = habit.notificationHour
+        components.minute = habit.notificationMinute
+        return Calendar.current.date(from: components) ?? Date()
     }
 
     //MARK: Functions
