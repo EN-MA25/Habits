@@ -12,14 +12,15 @@ import SwiftData
 @Observable
 class HabitViewModel {
 
-    func addHabit(name: String, note: String, context: ModelContext) {
+    func addHabit(name: String, targetPerDay: Int = 1, note: String, context: ModelContext) {
 
         let cleanedName = name.trimmingCharacters(in: .whitespacesAndNewlines)
         let cleanedNote = note.trimmingCharacters(in: .whitespacesAndNewlines)
 
         let habit = Habit(
             name: cleanedName,
-            note: cleanedNote.isEmpty ? nil : cleanedNote
+            note: cleanedNote.isEmpty ? nil : cleanedNote,
+            targetPerDay: targetPerDay
         )
 
         context.insert(habit)
@@ -27,6 +28,51 @@ class HabitViewModel {
 
     func deleteHabit(_ habit: Habit, context: ModelContext) {
         context.delete(habit)
+    }
+    
+    func incrementCompletion(for habit: Habit, on date: Date) {
+        let calendar = Calendar.current
+        let day = calendar.startOfDay(for: date)
+        
+        if let completion = habit.completions.first(where: {
+            calendar.isDate($0.date, inSameDayAs: day)
+        }) {
+            if completion.numberOfTimesDone < habit.targetPerDay {
+                completion.numberOfTimesDone += 1
+            } else {
+                completion.numberOfTimesDone = 0
+                habit.completions.removeAll {
+                    calendar.isDate($0.date, inSameDayAs: day)
+                }
+            }
+        } else {
+            habit.completions.append(Completion(date: day))
+        }
+    }
+    
+    func incrementCompletionToday(for habit: Habit) {
+        incrementCompletion(for: habit, on: Date())
+    }
+    
+    func decrementCompletion(for habit: Habit, on date: Date) {
+        let calendar = Calendar.current
+        let day = calendar.startOfDay(for: date)
+
+        guard let completion = habit.completions.first(where: {
+            calendar.isDate($0.date, inSameDayAs: day)
+        }) else { return }
+
+        completion.numberOfTimesDone -= 1
+
+        if completion.numberOfTimesDone <= 0 {
+            habit.completions.removeAll {
+                calendar.isDate($0.date, inSameDayAs: day)
+            }
+        }
+    }
+    
+    func decrementCompletionToday(for habit: Habit) {
+        decrementCompletion(for: habit, on: Date())
     }
 
     func toggleCompletion(for habit: Habit) {

@@ -11,6 +11,7 @@ import SwiftUI
 enum Field {
     case name
     case note
+    case count
 }
 
 struct AddHabitView: View {
@@ -21,6 +22,7 @@ struct AddHabitView: View {
 
     @State private var name: String = ""
     @State private var note: String = ""
+    @State private var habitsPerDayString: String = ""
 
     @FocusState private var focusedField: Field?
 
@@ -37,17 +39,23 @@ struct AddHabitView: View {
                     .onSubmit {
                         focusedField = .note
                     }
-                
                 TextField("Note (Optional)", text: $note)
                     .focused($focusedField, equals: .note)
-                    .submitLabel(name.isEmpty || isDuplicate ? .next : .done)
+                    .submitLabel(.next)
                     .onSubmit {
-                        if name.isEmpty || isDuplicate {
-                            focusedField = .name
-                        } else {
-                            showConfirmation = true
-                        }
+//                        if name.isEmpty || isDuplicate {
+//                            focusedField = .name
+//                        } else {
+//                            showConfirmation = true
+//                        }
+                        focusedField = .count
                     }
+                TextField("Habits per day (1 is default)", text: $habitsPerDayString)
+                    .focused($focusedField, equals: .count)
+                    .keyboardType(.numberPad)
+                
+                
+                
 
             }
             .navigationTitle("New habit")
@@ -55,7 +63,8 @@ struct AddHabitView: View {
             .navigationBarItems(
                 leading: Button("Cancel") { dismiss() },
                 trailing: Button("Add") {
-                    addHabit()
+//                    addHabit()
+                    showConfirmation = true
                 }
                 .disabled(name.isEmpty || isDuplicate)
             )
@@ -76,7 +85,11 @@ struct AddHabitView: View {
     }
     
     func addHabit() {
-        viewModel.addHabit(name: name, note: note, context: context)
+        if let targetPerDay = Int(habitsPerDayString) {
+            viewModel.addHabit(name: name, targetPerDay: targetPerDay, note: note, context: context)
+        } else {
+            viewModel.addHabit(name: name, note: note, context: context)
+        }
         dismiss()
     }
 

@@ -9,14 +9,14 @@ import SwiftUI
 
 struct DayView: View {
     let date: Date
+    let progress: Double
     let isCompleted: Bool
     let isCurrentMonth: Bool
     let isToday: Bool
 
     var body: some View {
         ZStack {
-            Circle()
-                .fill(isCompleted ? Color.green.opacity(0.3) : Color.clear)
+            CircleDiagramView(progress: progress)
             Text(dayNumber)
                 .font(.subheadline)
                 .foregroundStyle(isCurrentMonth ? .primary : .secondary)
@@ -34,12 +34,11 @@ struct DayView: View {
     }
 
     private var dayNumber: String {
-        var calendar = Calendar.current
-        calendar.firstWeekday = Locale.current.calendar.firstWeekday
+        let calendar = Calendar.current
         return String(calendar.component(.day, from: date))
     }
 }
 
 #Preview {
-    DayView(date: Date(), isCompleted: true, isCurrentMonth: false, isToday: true)
+    DayView(date: Date(), progress: 0.25, isCompleted: false, isCurrentMonth: false, isToday: true)
 }
