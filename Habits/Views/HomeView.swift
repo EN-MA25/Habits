@@ -5,6 +5,7 @@
 //  Created by Erik on 2026-05-04.
 //
 
+import CoreLocation
 import SwiftData
 import SwiftUI
 
@@ -16,6 +17,8 @@ struct HomeView: View {
     @State private var isShowingAddHabit = false
     @State private var filter: HabitFilter = .all
     @State private var searchText: String = ""
+
+    @State private var locationManager = LocationManager()
 
     var body: some View {
         NavigationSplitView {
@@ -78,23 +81,26 @@ struct HomeView: View {
         .searchable(text: $searchText, prompt: "Search")
         .environment(viewModel)
         .task {
-            do {
-                try await NotificationManager.shared.requestPermission()
-            } catch {
-                print("Could not request notification permission: \(error)")
-            }
+            locationManager.requestPermission()
         }
     }
 
     private func execute(habit: Habit) {
-        withAnimation {
-            viewModel.incrementCompletionToday(for: habit)
-        }
-    }
-
-    private func toggleDoneToday(for habit: Habit) {
-        withAnimation {
-            viewModel.toggleCompletion(for: habit)
+        if let completion = viewModel.incrementCompletionToday(for: habit) {
+            if habit.isCompletedToday {
+                if habit.notificationsEnabled {
+                    NotificationManager.shared.scheduleNextReminder(for: habit)
+                }
+                Task {
+                    if let location =
+                        await locationManager.requestCurrentLocation()
+                    {
+                        await MainActor.run {
+                            viewModel.addLocation(location, to: completion)
+                        }
+                    }
+                }
+            }
         }
     }
 

@@ -5,6 +5,7 @@
 //  Created by Erik on 2026-05-05.
 //
 
+import MapKit
 import SwiftUI
 
 struct HabitDetailView: View {
@@ -14,7 +15,7 @@ struct HabitDetailView: View {
     @Environment(HabitViewModel.self) private var viewModel
 
     @State private var showNotificationSettingsAlert = false
-    
+
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
@@ -23,14 +24,20 @@ struct HabitDetailView: View {
                 monthView()
                 weekView()
                 calendarView()
+                mapView()
             }
             .padding()
         }
         .navigationTitle(habit.name)
-        .alert("Notifications are disabled", isPresented: $showNotificationSettingsAlert) {
-            Button("OK", role: .cancel) { }
+        .alert(
+            "Notifications are disabled",
+            isPresented: $showNotificationSettingsAlert
+        ) {
+            Button("OK", role: .cancel) {}
         } message: {
-            Text("To enable reminders, allow notifications for this app in Settings.")
+            Text(
+                "To enable reminders, allow notifications for this app in Settings."
+            )
         }
 
     }
@@ -149,6 +156,25 @@ struct HabitDetailView: View {
 
     }
 
+    private func mapView() -> some View {
+        Map {
+            ForEach(completionsWithLocation) { completion in
+                if let latitude = completion.latitude,
+                    let longitude = completion.longitude
+                {
+                    Marker(
+                        habit.name,
+                        coordinate: CLLocationCoordinate2D(
+                            latitude: latitude,
+                            longitude: longitude
+                        )
+                    )
+                }
+            }
+        }
+        .aspectRatio(1, contentMode: .fit)
+    }
+
     //MARK: -
     //MARK: Calculeted Properties
     private var calendar: Calendar {
@@ -180,6 +206,12 @@ struct HabitDetailView: View {
         components.hour = habit.notificationHour
         components.minute = habit.notificationMinute
         return Calendar.current.date(from: components) ?? Date()
+    }
+
+    private var completionsWithLocation: [Completion] {
+        habit.completions.filter {
+            return $0.latitude != nil && $0.longitude != nil
+        }
     }
 
     //MARK: Functions
