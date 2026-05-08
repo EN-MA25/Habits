@@ -28,7 +28,7 @@ struct AddHabitView: View {
 
     let existingHabits: [Habit]
 
-    @State private var showConfirmation = false
+    @State private var showDuplicateAlert = false
 
     @State private var reminderTime = Date()
     @State private var notificationsEnabled = false
@@ -101,9 +101,13 @@ struct AddHabitView: View {
             .navigationBarItems(
                 leading: Button("Cancel") { dismiss() },
                 trailing: Button("Add") {
-                    showConfirmation = true
+                    if isDuplicate {
+                        showDuplicateAlert = true
+                    } else {
+                        addHabit()
+                    }
                 }
-                .disabled(name.isEmpty || isDuplicate)
+                .disabled(name.isEmpty)
             )
         }
         .onAppear {
@@ -111,13 +115,10 @@ struct AddHabitView: View {
                 focusedField = .name
             }
         }
-        .alert("Add Habit", isPresented: $showConfirmation) {
-            Button("Yes") {
-                addHabit()
-            }
-            Button("No", role: .cancel) { focusedField = .name }
+        .alert("Duplicate", isPresented: $showDuplicateAlert) {
+            Button("Ok") { focusedField = .name }
         } message: {
-            Text("Would you like to add \(name) as a new note")
+            Text("The Habit \"\(name)\" does already exist. Please choose another name.")
         }
         .alert("Notifications are disabled", isPresented: $showNotificationSettingsAlert) {
             Button("OK", role: .cancel) { }
