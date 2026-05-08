@@ -15,13 +15,20 @@ struct DayView: View {
     let isToday: Bool
 
     var body: some View {
-        ZStack {
-            CircleDiagramView(progress: progress)
-            Text(dayNumber)
-                .font(.subheadline)
-                .foregroundStyle(isCurrentMonth ? .primary : .secondary)
+
+        GeometryReader { geometry in
+            let size = min(
+                geometry.size.width,
+                geometry.size.height
+            )
+            ZStack {
+                CircleDiagramView(progress: progress)
+                Text(dayNumber)
+                    .font(.system(size: fontSize(for: size), weight: .semibold))
+                    .foregroundStyle(isCurrentMonth ? .primary : .secondary)
+            }
         }
-        .frame(maxWidth: .infinity, minHeight: 40)
+        .aspectRatio(1, contentMode: .fit)
         .padding(4)
         .background(
             ZStack {
@@ -37,8 +44,18 @@ struct DayView: View {
         let calendar = Calendar.current
         return String(calendar.component(.day, from: date))
     }
+    
+    private func fontSize(for size: CGFloat) -> CGFloat {
+        size * 0.35
+    }
 }
 
 #Preview {
-    DayView(date: Date(), progress: 0.25, isCompleted: false, isCurrentMonth: false, isToday: true)
+    DayView(
+        date: Date(),
+        progress: 0.25,
+        isCompleted: false,
+        isCurrentMonth: false,
+        isToday: true
+    )
 }
