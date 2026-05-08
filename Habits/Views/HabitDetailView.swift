@@ -13,6 +13,8 @@ struct HabitDetailView: View {
     @State private var currentMonth: Date = Date()
     @Environment(HabitViewModel.self) private var viewModel
 
+    @State private var showNotificationSettingsAlert = false
+    
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
@@ -25,6 +27,11 @@ struct HabitDetailView: View {
             .padding()
         }
         .navigationTitle(habit.name)
+        .alert("Notifications are disabled", isPresented: $showNotificationSettingsAlert) {
+            Button("OK", role: .cancel) { }
+        } message: {
+            Text("To enable reminders, allow notifications for this app in Settings.")
+        }
 
     }
 
@@ -108,16 +115,14 @@ struct HabitDetailView: View {
                 isOn: Binding(
                     get: { habit.notificationsEnabled },
                     set: { newValue in
-                        withAnimation {
-                            habit.notificationsEnabled = newValue
-                            if newValue {
-                                NotificationManager.shared.scheduleNextReminder(
+                        Task {
+                            let success =
+                                await viewModel.setNotificationEnabled(
+                                    newValue,
                                     for: habit
                                 )
-                            } else {
-                                NotificationManager.shared.cancelReminder(
-                                    for: habit
-                                )
+                            if !success {
+                                showNotificationSettingsAlert = true
                             }
                         }
                     }
@@ -130,24 +135,13 @@ struct HabitDetailView: View {
                     selection: Binding(
                         get: { reminderDate },
                         set: { newDate in
-                            let calendar = Calendar.current
-                            habit.notificationHour = calendar.component(
-                                .hour,
-                                from: newDate
-                            )
-                            habit.notificationMinute = calendar.component(
-                                .minute,
-                                from: newDate
-                            )
-                            NotificationManager.shared.scheduleNextReminder(
-                                for: habit
-                            )
+                            viewModel.setNotificationTime(newDate, for: habit)
                         }
                     ),
                     displayedComponents: .hourAndMinute
                 )
             }
-            
+
         }
         .foregroundStyle(.secondary)
 

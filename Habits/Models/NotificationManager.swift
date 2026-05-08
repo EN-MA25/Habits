@@ -5,8 +5,8 @@
 //  Created by Erik on 2026-05-07.
 //
 
-import UserNotifications
 import SwiftData
+import UserNotifications
 
 final class NotificationManager {
 
@@ -17,7 +17,7 @@ final class NotificationManager {
         try await UNUserNotificationCenter.current()
             .requestAuthorization(options: [.alert, .badge, .sound])
     }
-    
+
     func scheduleNextReminder(for habit: Habit) {
         cancelReminder(for: habit)
 
@@ -30,14 +30,17 @@ final class NotificationManager {
         components.hour = habit.notificationHour
         components.minute = habit.notificationMinute
 
-        var nextDate = calendar.nextDate(
-            after: now,
-            matching: components,
-            matchingPolicy: .nextTime
-        ) ?? now
+        var nextDate =
+            calendar.nextDate(
+                after: now,
+                matching: components,
+                matchingPolicy: .nextTime
+            ) ?? now
 
         if habit.isCompleted(on: nextDate) {
-            nextDate = calendar.date(byAdding: .day, value: 1, to: nextDate) ?? nextDate
+            nextDate =
+                calendar.date(byAdding: .day, value: 1, to: nextDate)
+                ?? nextDate
         }
 
         let finalComponents = calendar.dateComponents(
@@ -73,6 +76,30 @@ final class NotificationManager {
 
     private func notificationID(for habit: Habit) -> String {
         "habit-reminder-\(habit.persistentModelID)"
+    }
+
+    func notificationPermissionGranted() async -> Bool {
+        let settings = await UNUserNotificationCenter.current()
+            .notificationSettings()
+
+        switch settings.authorizationStatus {
+        case .authorized, .provisional, .ephemeral:
+            return true
+
+        case .notDetermined:
+            do {
+                return try await UNUserNotificationCenter.current()
+                    .requestAuthorization(options: [.alert, .badge, .sound])
+            } catch {
+                return false
+            }
+
+        case .denied:
+            return false
+
+        @unknown default:
+            return false
+        }
     }
 
 }

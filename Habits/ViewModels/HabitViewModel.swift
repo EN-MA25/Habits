@@ -124,4 +124,36 @@ class HabitViewModel {
         }
     }
 
+    func setNotificationEnabled(_ enabled: Bool, for habit: Habit) async -> Bool
+    {
+        if enabled {
+            let granted = await NotificationManager.shared
+                .notificationPermissionGranted()
+            if granted {
+                habit.notificationsEnabled = true
+                NotificationManager.shared.scheduleNextReminder(for: habit)
+                return true
+            } else {
+                habit.notificationsEnabled = false
+                NotificationManager.shared.cancelReminder(for: habit)
+                return false
+            }
+        } else {
+            habit.notificationsEnabled = false
+            NotificationManager.shared.cancelReminder(for: habit)
+            return true
+        }
+    }
+
+    func setNotificationTime(_ date: Date, for habit: Habit) {
+        let calendar = Calendar.current
+
+        habit.notificationHour = calendar.component(.hour, from: date)
+        habit.notificationMinute = calendar.component(.minute, from: date)
+
+        if habit.notificationsEnabled {
+            NotificationManager.shared.scheduleNextReminder(for: habit)
+        }
+    }
+
 }
