@@ -30,6 +30,10 @@ struct AddHabitView: View {
 
     @State private var showConfirmation = false
 
+    @State private var reminderTime = Date()
+    @State private var notificationsEnabled = false
+    @State private var showNotificationSettingsAlert = false
+
     var body: some View {
         NavigationStack {
             Form {
@@ -43,19 +47,53 @@ struct AddHabitView: View {
                     .focused($focusedField, equals: .note)
                     .submitLabel(.next)
                     .onSubmit {
-//                        if name.isEmpty || isDuplicate {
-//                            focusedField = .name
-//                        } else {
-//                            showConfirmation = true
-//                        }
                         focusedField = .count
                     }
-                TextField("Habits per day (1 is default)", text: $habitsPerDayString)
-                    .focused($focusedField, equals: .count)
-                    .keyboardType(.numberPad)
-                
-                
-                
+                TextField(
+                    "Habits per day (1 is default)",
+                    text: $habitsPerDayString
+                )
+                .focused($focusedField, equals: .count)
+                .keyboardType(.numberPad)
+
+                Section {
+                    Toggle(
+                        "Daily reminder",
+                        isOn: Binding(
+                            get: {
+                                notificationsEnabled
+                            },
+                            set: { newValue in
+                                if newValue {
+                                    Task {
+                                        let granted =
+                                            await NotificationManager.shared
+                                            .notificationPermissionGranted()
+                                        await MainActor.run {
+                                            if granted {
+                                                notificationsEnabled = true
+                                            } else {
+                                                notificationsEnabled = false
+                                                showNotificationSettingsAlert =
+                                                    true
+                                            }
+                                        }
+                                    }
+                                } else {
+                                    notificationsEnabled = false
+                                }
+                            }
+                        )
+                    )
+
+                    if notificationsEnabled {
+                        DatePicker(
+                            "Time",
+                            selection: $reminderTime,
+                            displayedComponents: .hourAndMinute
+                        )
+                    }
+                }
 
             }
             .navigationTitle("New habit")
@@ -63,7 +101,6 @@ struct AddHabitView: View {
             .navigationBarItems(
                 leading: Button("Cancel") { dismiss() },
                 trailing: Button("Add") {
-//                    addHabit()
                     showConfirmation = true
                 }
                 .disabled(name.isEmpty || isDuplicate)
@@ -78,18 +115,28 @@ struct AddHabitView: View {
             Button("Yes") {
                 addHabit()
             }
-            Button("No", role: .cancel) { focusedField = .name}
+            Button("No", role: .cancel) { focusedField = .name }
         } message: {
             Text("Would you like to add \(name) as a new note")
         }
-    }
-    
-    func addHabit() {
-        if let targetPerDay = Int(habitsPerDayString) {
-            viewModel.addHabit(name: name, targetPerDay: targetPerDay, note: note, context: context)
-        } else {
-            viewModel.addHabit(name: name, note: note, context: context)
+        .alert("Notifications are disabled", isPresented: $showNotificationSettingsAlert) {
+            Button("OK", role: .cancel) { }
+        } message: {
+            Text("To enable reminders, allow notifications for this app in Settings.")
         }
+    }
+
+    func addHabit() {
+
+        viewModel.addHabit(
+            name: name,
+            targetPerDay: Int(habitsPerDayString) ?? 1,
+            note: note,
+            context: context,
+            enabled: notificationsEnabled,
+            reminderTime: reminderTime
+        )
+
         dismiss()
     }
 

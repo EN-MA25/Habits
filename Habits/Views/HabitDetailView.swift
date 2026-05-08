@@ -13,10 +13,13 @@ struct HabitDetailView: View {
     @State private var currentMonth: Date = Date()
     @Environment(HabitViewModel.self) private var viewModel
 
+    @State private var showNotificationSettingsAlert = false
+    
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
                 headerView()
+                notificationView()
                 monthView()
                 weekView()
                 calendarView()
@@ -24,6 +27,11 @@ struct HabitDetailView: View {
             .padding()
         }
         .navigationTitle(habit.name)
+        .alert("Notifications are disabled", isPresented: $showNotificationSettingsAlert) {
+            Button("OK", role: .cancel) { }
+        } message: {
+            Text("To enable reminders, allow notifications for this app in Settings.")
+        }
 
     }
 
@@ -67,7 +75,6 @@ struct HabitDetailView: View {
             }
             .disabled(isCurrentMonth(date: Date()))
         }
-        .padding()
     }
 
     private func weekView() -> some View {
@@ -101,6 +108,45 @@ struct HabitDetailView: View {
         }
     }
 
+    private func notificationView() -> some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Toggle(
+                "Daily reminder",
+                isOn: Binding(
+                    get: { habit.notificationsEnabled },
+                    set: { newValue in
+                        Task {
+                            let success =
+                                await viewModel.setNotificationEnabled(
+                                    newValue,
+                                    for: habit
+                                )
+                            if !success {
+                                showNotificationSettingsAlert = true
+                            }
+                        }
+                    }
+                )
+            )
+
+            if habit.notificationsEnabled {
+                DatePicker(
+                    "Time",
+                    selection: Binding(
+                        get: { reminderDate },
+                        set: { newDate in
+                            viewModel.setNotificationTime(newDate, for: habit)
+                        }
+                    ),
+                    displayedComponents: .hourAndMinute
+                )
+            }
+
+        }
+        .foregroundStyle(.secondary)
+
+    }
+
     //MARK: -
     //MARK: Calculeted Properties
     private var calendar: Calendar {
@@ -125,6 +171,13 @@ struct HabitDetailView: View {
         let formatter = DateFormatter()
         formatter.dateFormat = "d MMMM yyyy"
         return formatter.string(from: date)
+    }
+
+    private var reminderDate: Date {
+        var components = DateComponents()
+        components.hour = habit.notificationHour
+        components.minute = habit.notificationMinute
+        return Calendar.current.date(from: components) ?? Date()
     }
 
     //MARK: Functions

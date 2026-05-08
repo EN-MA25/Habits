@@ -16,13 +16,19 @@ final class Habit {
     var createdAt: Date
     var completions: [Completion]
     var targetPerDay: Int
+    var notificationsEnabled: Bool
+    var notificationHour: Int
+    var notificationMinute: Int
 
-    init(name: String, note: String? = nil, targetPerDay: Int = 1) {
+    init(name: String, note: String? = nil, targetPerDay: Int = 1, notificationsEnabled: Bool = false, notificationHour: Int = 12, notificationMinute: Int = 0) {
         self.name = name
         self.note = note
         self.createdAt = Date()
         self.completions = []
         self.targetPerDay = targetPerDay
+        self.notificationsEnabled = notificationsEnabled
+        self.notificationHour = notificationHour
+        self.notificationMinute = notificationMinute
     }
 }
 

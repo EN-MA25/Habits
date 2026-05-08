@@ -94,6 +94,13 @@ struct HomeView: View {
         }
         .searchable(text: $searchText, prompt: "Search")
         .environment(viewModel)
+        .task {
+            do {
+                try await NotificationManager.shared.requestPermission()
+            } catch {
+                print("Could not request notification permission: \(error)")
+            }
+        }
     }
 
     private func execute(habit: Habit) {
@@ -107,12 +114,6 @@ struct HomeView: View {
             viewModel.toggleCompletion(for: habit)
         }
     }
-
-    //    private func addItem() {
-    //        withAnimation {
-    //            viewModel.addHabit(name: "Test", context: modelContext)
-    //        }
-    //    }
 
     private func deleteItems(offsets: IndexSet) {
         withAnimation {
