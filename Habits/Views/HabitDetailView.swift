@@ -102,7 +102,9 @@ struct HabitDetailView: View {
                 )
                 .onTapGesture {
                     //MARK: - Test. In production it should not be used.
-                    viewModel.incrementCompletion(for: habit, on: date)
+                    if isCurrentMonth(date: date), date < Date() {
+                        viewModel.incrementCompletion(for: habit, on: date)
+                    }
                 }
             }
         }
