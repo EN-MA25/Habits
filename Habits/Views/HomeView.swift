@@ -17,40 +17,9 @@ struct HomeView: View {
     @State private var filter: HabitFilter = .all
     @State private var searchText: String = ""
 
-    var filteredHabits: [Habit] {
-        habits
-            .filter { habit in
-                switch filter {
-                case .all:
-                    return true
-                case .completedToday:
-                    return habit.isCompletedToday
-                case .notCompletedToday:
-                    return !habit.isCompletedToday
-                }
-            }
-            .filter { habit in
-                guard !searchText.isEmpty else { return true }
-
-                let search = searchText
-                    .trimmingCharacters(in: .whitespacesAndNewlines)
-                    .lowercased()
-                
-                let nameMatch = habit.name.lowercased().contains(search)
-                
-                let noteMatch =
-                    habit.note?
-                    .lowercased()
-                    .contains(search) ?? false
-
-                return nameMatch || noteMatch
-            }
-
-    }
-
     var body: some View {
         NavigationSplitView {
-            
+
             List {
                 Picker("Filter", selection: $filter) {
                     Text("All").tag(HabitFilter.all)
@@ -62,7 +31,8 @@ struct HomeView: View {
                     Text("No habits found")
                         .foregroundStyle(.secondary)
                 } else {
-                    ForEach(filteredHabits) { habit in
+
+                    ForEach(incompleteHabits) { habit in
                         NavigationLink {
                             HabitDetailView(habit: habit)
                         } label: {
@@ -72,6 +42,19 @@ struct HomeView: View {
                         }
                     }
                     .onDelete(perform: deleteItems)
+
+                    Section {
+                        ForEach(completedHabits) { habit in
+                            NavigationLink {
+                                HabitDetailView(habit: habit)
+                            } label: {
+                                HabitListItemView(habit: habit) {
+                                    execute(habit: habit)
+                                }
+                            }
+                        }
+                        .onDelete(perform: deleteItems)
+                    }
                 }
             }
             .sheet(isPresented: $isShowingAddHabit) {
@@ -108,7 +91,7 @@ struct HomeView: View {
             viewModel.incrementCompletionToday(for: habit)
         }
     }
-    
+
     private func toggleDoneToday(for habit: Habit) {
         withAnimation {
             viewModel.toggleCompletion(for: habit)
@@ -121,6 +104,48 @@ struct HomeView: View {
                 viewModel.deleteHabit(habits[index], context: modelContext)
             }
         }
+    }
+
+    var filteredHabits: [Habit] {
+        habits
+            .filter { habit in
+                switch filter {
+                case .all:
+                    return true
+                case .completedToday:
+                    return habit.isCompletedToday
+                case .notCompletedToday:
+                    return !habit.isCompletedToday
+                }
+            }
+            .filter { habit in
+                guard !searchText.isEmpty else { return true }
+
+                let search =
+                    searchText
+                    .trimmingCharacters(in: .whitespacesAndNewlines)
+                    .lowercased()
+
+                let nameMatch = habit.name.lowercased().contains(search)
+
+                let noteMatch =
+                    habit.note?
+                    .lowercased()
+                    .contains(search) ?? false
+
+                return nameMatch || noteMatch
+            }
+
+    }
+
+    private var incompleteHabits: [Habit] {
+        filteredHabits.filter { !$0.isCompletedToday }
+    }
+
+    private var completedHabits: [Habit] {
+
+        filteredHabits.filter { $0.isCompletedToday }
+
     }
 }
 
