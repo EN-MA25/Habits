@@ -107,8 +107,9 @@ struct HabitDetailView: View {
                     isCurrentMonth: isCurrentMonth(date: date),
                     isToday: calendar.isDateInToday(date)
                 )
+                //TODO: - This Tap Gesture is just for testing. In production it should not be used.
+                // Also the notifications and map is not implemented here
                 .onTapGesture {
-                    //MARK: - Test. In production it should not be used.
                     if isCurrentMonth(date: date), date < Date() {
                         viewModel.incrementCompletion(for: habit, on: date)
                     }
