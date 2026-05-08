@@ -13,8 +13,18 @@ final class Completion {
     var date: Date
     var numberOfTimesDone: Int
 
-    init(date: Date, count: Int = 1) {
+    var latitude: Double?
+    var longitude: Double?
+
+    init(
+        date: Date,
+        count: Int = 1,
+        latitude: Double? = nil,
+        longitude: Double? = nil
+    ) {
         self.date = date
         self.numberOfTimesDone = count
+        self.latitude = latitude
+        self.longitude = longitude
     }
 }

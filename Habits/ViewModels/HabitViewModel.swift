@@ -7,6 +7,7 @@
 
 import Foundation
 import Observation
+import CoreLocation
 import SwiftData
 
 @Observable
@@ -48,7 +49,8 @@ class HabitViewModel {
         context.delete(habit)
     }
 
-    func incrementCompletion(for habit: Habit, on date: Date) {
+    @discardableResult
+    func incrementCompletion(for habit: Habit, on date: Date) -> Completion? {
         let calendar = Calendar.current
         let day = calendar.startOfDay(for: date)
 
@@ -57,22 +59,25 @@ class HabitViewModel {
         }) {
             if completion.numberOfTimesDone < habit.targetPerDay {
                 completion.numberOfTimesDone += 1
+                return completion
             } else {
                 completion.numberOfTimesDone = 0
                 habit.completions.removeAll {
                     calendar.isDate($0.date, inSameDayAs: day)
                 }
+                return nil
             }
+
         } else {
-            habit.completions.append(Completion(date: day))
-        }
-        if habit.isCompletedToday, habit.notificationsEnabled {
-            NotificationManager.shared.scheduleNextReminder(for: habit)
+            let completion = Completion(date: day)
+            habit.completions.append(completion)
+            return completion
         }
     }
 
-    func incrementCompletionToday(for habit: Habit) {
-        incrementCompletion(for: habit, on: Date())
+    @discardableResult
+    func incrementCompletionToday(for habit: Habit) -> Completion? {
+        return incrementCompletion(for: habit, on: Date())
     }
 
     func decrementCompletion(for habit: Habit, on date: Date) {
@@ -98,30 +103,10 @@ class HabitViewModel {
         decrementCompletion(for: habit, on: Date())
     }
 
-    func toggleCompletion(for habit: Habit) {
-        let today = Calendar.current.startOfDay(for: Date())
-
-        if let index = habit.completions.firstIndex(where: {
-            Calendar.current.isDate($0.date, inSameDayAs: today)
-        }) {
-            habit.completions.remove(at: index)
-        } else {
-            habit.completions.append(Completion(date: today))
-        }
-    }
-
-    //TODO: - Test method. In production it should not be used
-    func toggleCompletion(for habit: Habit, atDate date: Date) {
-        let calendar = Calendar.current
-        let normalizedDate = calendar.startOfDay(for: date)
-
-        if let index = habit.completions.firstIndex(where: {
-            calendar.isDate($0.date, inSameDayAs: normalizedDate)
-        }) {
-            habit.completions.remove(at: index)
-        } else {
-            habit.completions.append(Completion(date: normalizedDate))
-        }
+    func addLocation(_ location: CLLocation?, to completion: Completion) {
+        guard let location else { return }
+        completion.latitude = location.coordinate.latitude
+        completion.longitude = location.coordinate.longitude
     }
 
     func setNotificationEnabled(_ enabled: Bool, for habit: Habit) async -> Bool
