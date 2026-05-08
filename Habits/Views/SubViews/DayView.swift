@@ -23,6 +23,7 @@ struct DayView: View {
             )
             ZStack {
                 CircleDiagramView(progress: progress)
+                    .opacity(isCurrentMonth ? 1 : 0)
                 Text(dayNumber)
                     .font(.system(size: fontSize(for: size), weight: .semibold))
                     .foregroundStyle(isCurrentMonth ? .primary : .secondary)
@@ -44,7 +45,7 @@ struct DayView: View {
         let calendar = Calendar.current
         return String(calendar.component(.day, from: date))
     }
-    
+
     private func fontSize(for size: CGFloat) -> CGFloat {
         size * 0.35
     }
@@ -55,7 +56,7 @@ struct DayView: View {
         date: Date(),
         progress: 0.25,
         isCompleted: false,
-        isCurrentMonth: false,
+        isCurrentMonth: true,
         isToday: true
     )
 }
