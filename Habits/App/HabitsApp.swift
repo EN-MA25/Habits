@@ -58,7 +58,6 @@ struct StartScreenView: View {
         ZStack {
             Color("StartScreenBackground")
                 .ignoresSafeArea()
-
             Text("HABITS")
                 .font(.system(size: 48, weight: .bold))
                 .foregroundStyle(Color("StartScreenText"))

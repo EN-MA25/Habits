@@ -10,7 +10,7 @@ import SwiftUI
 
 struct HomeView: View {
     @Environment(\.modelContext) private var modelContext
-    @Query private var habits: [Habit]
+    @Query(sort: \Habit.createdAt) private var habits: [Habit]
 
     @State private var viewModel = HabitViewModel()
     @State private var isShowingAddHabit = false
